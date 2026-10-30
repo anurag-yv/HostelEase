@@ -1,0 +1,87 @@
+{% extends "django_demo/base.html" %}
+
+{% block title %}Protected Staff & Admin Area | Unit VI Demo{% endblock %}
+
+{% block content %}
+<div class="card card-chocolate mb-4 border-success">
+    <div class="card-header card-chocolate-header bg-success text-white">
+        <i class="bi bi-shield-check me-2"></i>Access Authorized: Protected View (<code>@login_required</code> & RBAC)
+    </div>
+    <div class="card-body">
+        <div class="alert alert-success d-flex align-items-center mb-4">
+            <i class="bi bi-person-check-fill fs-3 me-3"></i>
+            <div>
+                <strong>Authenticated User:</strong> {{ user.full_name }} (<code>{{ user.email }}</code>)
+                <br>
+                <strong>Role Clearance:</strong> <span class="badge bg-dark">{{ user.get_role_display }}</span>
+                &bull; <code>is_staff={{ user.is_staff }}</code>
+                &bull; <code>is_superuser={{ user.is_superuser }}</code>
+            </div>
+        </div>
+
+        <h5 class="fw-bold mb-3"><i class="bi bi-people-fill me-1"></i> System Registered Users (Admin View)</h5>
+        <div class="table-responsive mb-4">
+            <table class="table table-hover table-bordered table-sm align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                        <th>Hostel Block</th>
+                        <th>Room</th>
+                        <th>Status</th>
+                        <th>Date Joined</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for u in system_users %}
+                        <tr>
+                            <td><strong>{{ u.full_name }}</strong></td>
+                            <td>{{ u.email }}</td>
+                            <td><span class="badge bg-secondary">{{ u.get_role_display }}</span></td>
+                            <td>{{ u.hostel_block|default:"-" }}</td>
+                            <td>{{ u.room_number|default:"-" }}</td>
+                            <td>
+                                {% if u.is_active %}
+                                    <span class="badge bg-success">Active</span>
+                                {% else %}
+                                    <span class="badge bg-danger">Disabled</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ u.date_joined|date:"M d, Y" }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <h5 class="fw-bold mb-3"><i class="bi bi-clock-history me-1"></i> Recent Status Audit Logs</h5>
+        <div class="table-responsive">
+            <table class="table table-sm table-striped">
+                <thead>
+                    <tr>
+                        <th>Complaint</th>
+                        <th>Transition</th>
+                        <th>Changed By</th>
+                        <th>Remarks</th>
+                        <th>Timestamp</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for h in recent_history %}
+                        <tr>
+                            <td><strong>{{ h.complaint.complaint_number }}</strong></td>
+                            <td>{{ h.previous_status }} &rarr; <strong>{{ h.new_status }}</strong></td>
+                            <td>{{ h.changed_by.full_name|default:"System" }}</td>
+                            <td>{{ h.remarks|default:"-" }}</td>
+                            <td>{{ h.timestamp|date:"M d, Y H:i" }}</td>
+                        </tr>
+                    {% empty %}
+                        <tr><td colspan="5" class="text-muted text-center">No audit logs available.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

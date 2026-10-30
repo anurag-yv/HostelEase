@@ -1,0 +1,26 @@
+{% extends "django_demo/base.html" %}
+
+{% block title %}404 - Page Not Found | INT253 Error Demo{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center text-center my-5">
+    <div class="col-md-7">
+        <div class="card card-chocolate p-4">
+            <div class="card-body">
+                <i class="bi bi-exclamation-triangle-fill text-warning display-1 mb-3"></i>
+                <h1 class="display-5 fw-bold text-dark">404 - Page Not Found</h1>
+                <p class="lead text-muted">
+                    The requested URL could not be resolved by Django's URL dispatcher.
+                </p>
+                <div class="alert alert-secondary text-start small mb-4">
+                    <strong>INT253 Unit II Error Handling Concept:</strong>
+                    <br>This page is served by a custom <code>handler404 = 'django_demo.views.custom_404_view'</code> defined in <code>config/urls.py</code>, rather than exposing default debug diagnostics in production.
+                </div>
+                <a href="{% url 'django_demo:dashboard' %}" class="btn btn-chocolate px-4">
+                    <i class="bi bi-house-door"></i> Return to Demo Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

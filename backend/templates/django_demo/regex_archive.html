@@ -1,0 +1,64 @@
+{% extends "django_demo/base.html" %}
+
+{% block title %}Regex URL Archive Demo | Unit II{% endblock %}
+
+{% block content %}
+<div class="card card-chocolate mb-4 border-info">
+    <div class="card-header card-chocolate-header bg-light">
+        <i class="bi bi-regex me-2"></i>Unit II: Regular Expression in URLs (<code>re_path</code>)
+    </div>
+    <div class="card-body">
+        <p class="mb-1">This view is routed using Django's <code>django.urls.re_path()</code> with named regular expression capture groups:</p>
+        <pre class="bg-dark text-warning p-3 rounded"><code>re_path(r'^regex-archive/(?P&lt;year&gt;[0-9]{4})/(?P&lt;block&gt;[A-Za-z0-9_-]+)/$', views.regex_archive_demo_view, name='regex_archive_demo')</code></pre>
+        <div class="d-flex gap-3 mt-3 flex-wrap">
+            <span class="badge bg-secondary p-2">Captured Year: <strong>{{ year }}</strong> (Pattern: [0-9]{4})</span>
+            <span class="badge bg-secondary p-2">Captured Block: <strong>{{ block }}</strong> (Pattern: [A-Za-z0-9_-]+)</span>
+        </div>
+
+        <div class="mt-3">
+            <span class="text-muted small">Try sample regex matches:</span>
+            <a href="{% url 'django_demo:regex_archive_demo' year=2026 block='Block-A' %}" class="btn btn-sm btn-outline-chocolate ms-2">2026 / Block-A</a>
+            <a href="{% url 'django_demo:regex_archive_demo' year=2026 block='Block-B' %}" class="btn btn-sm btn-outline-chocolate ms-2">2026 / Block-B</a>
+            <a href="{% url 'django_demo:regex_archive_demo' year=2025 block='Block-C' %}" class="btn btn-sm btn-outline-chocolate ms-2">2025 / Block-C</a>
+        </div>
+    </div>
+</div>
+
+<div class="card card-chocolate">
+    <div class="card-header card-chocolate-header">
+        Complaints Filtered by Regex Groups ({{ complaints.count }} matching)
+    </div>
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Complaint Number</th>
+                    <th>Title</th>
+                    <th>Student</th>
+                    <th>Hostel Block</th>
+                    <th>Status</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for c in complaints %}
+                    <tr>
+                        <td class="fw-bold">{{ c.complaint_number }}</td>
+                        <td><a href="{% url 'django_demo:complaint_detail' complaint_id=c.id %}">{{ c.title }}</a></td>
+                        <td>{{ c.student.full_name }}</td>
+                        <td>{{ c.hostel_block_snapshot }}</td>
+                        <td><span class="badge badge-{{ c.status|lower }}">{{ c.get_status_display }}</span></td>
+                        <td>{{ c.created_at|date:"Y-m-d" }}</td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center py-4 text-muted">
+                            No complaints recorded for Year <strong>{{ year }}</strong> and Block <strong>{{ block }}</strong>.
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

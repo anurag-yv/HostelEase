@@ -1,0 +1,132 @@
+{% extends "django_demo/base.html" %}
+
+{% block title %}Sessions & Cookies Demonstration | Unit VI{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="h3 fw-bold text-dark mb-1">
+                    <i class="bi bi-cookie text-warning me-2"></i>Django Sessions & Cookies Demonstration
+                </h1>
+                <p class="text-muted mb-0">Demonstrating Unit VI: Session State, HttpOnly Cookies, and Preference Cookies</p>
+            </div>
+            <span class="syllabus-pill">Unit VI Compliant</span>
+        </div>
+    </div>
+
+    <!-- Session Management Card -->
+    <div class="col-md-6">
+        <div class="card card-chocolate h-100">
+            <div class="card-header card-chocolate-header">
+                <i class="bi bi-cpu-fill me-2"></i>1. Django Session Storage (Backend)
+            </div>
+            <div class="card-body">
+                <p class="small text-muted">
+                    Django handles sessions server-side using the database engine (<code>django.contrib.sessions.backends.db</code>).
+                    A cryptographically signed session key is exchanged via a secure, HttpOnly cookie named <code>sessionid</code>.
+                </p>
+
+                <div class="p-3 bg-light rounded mb-3">
+                    <div class="mb-2">
+                        <strong>Session Key:</strong> <code>{{ session_key|default:"Anonymous (Session not yet initiated)" }}</code>
+                    </div>
+                    <div class="mb-2">
+                        <strong>Demo Visit Counter:</strong> <span class="badge bg-chocolate fs-6">{{ current_visits }}</span>
+                        <small class="text-muted d-block">Incremented automatically on each request via <code>request.session['demo_visits']</code></small>
+                    </div>
+                    <div>
+                        <strong>Items Per Page:</strong> <span class="badge bg-secondary">{{ current_per_page }}</span>
+                    </div>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <a href="?action=reset_session" class="btn btn-sm btn-outline-danger">
+                        <i class="bi bi-arrow-counterclockwise"></i> Reset Visit Counter
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Client-side Preference Cookie Card -->
+    <div class="col-md-6">
+        <div class="card card-chocolate h-100">
+            <div class="card-header card-chocolate-header">
+                <i class="bi bi-browser-chrome me-2"></i>2. Client-side Preference Cookies
+            </div>
+            <div class="card-body">
+                <p class="small text-muted">
+                    Demonstrates creating and reading harmless client cookies via <code>response.set_cookie()</code> and <code>request.COOKIES.get()</code>.
+                    Notice that sensitive authentication secrets are <strong>never</strong> stored here!
+                </p>
+
+                <div class="p-3 bg-light rounded mb-3">
+                    <div class="mb-2">
+                        <strong>Current Cookie Value:</strong>
+                        <span class="badge bg-warning text-dark fs-6">{{ current_theme }}</span>
+                    </div>
+                    <small class="text-muted">Stored in browser under key: <code>hostel_theme</code></small>
+                </div>
+
+                <form method="POST" class="border p-3 rounded bg-white">
+                    {% csrf_token %}
+                    <h6 class="fw-bold mb-3">Update Cookie & Session Preference</h6>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Select Theme Preference (Cookie):</label>
+                        {{ form.theme_preference }}
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Items Per Page (Session):</label>
+                        {{ form.items_per_page }}
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <button type="submit" name="set_preferences" class="btn btn-sm btn-chocolate">
+                            <i class="bi bi-save"></i> Save Preferences
+                        </button>
+                        <a href="?action=clear_cookie" class="btn btn-sm btn-outline-secondary">
+                            Delete Cookie
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Session Inspector Details -->
+    <div class="col-12">
+        <div class="card card-chocolate">
+            <div class="card-header card-chocolate-header">
+                <i class="bi bi-code-slash me-2"></i>Django Session State Dictionary (<code>request.session.items()</code>)
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-sm table-bordered">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Session Key</th>
+                                <th>Value</th>
+                                <th>Python Type</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for key, val in session_data.items %}
+                                <tr>
+                                    <td><code>{{ key }}</code></td>
+                                    <td><strong>{{ val }}</strong></td>
+                                    <td><small class="text-muted">{{ val|stringformat:"s" }}</small></td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="3" class="text-muted text-center">No custom session variables stored yet.</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

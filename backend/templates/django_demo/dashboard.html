@@ -1,0 +1,169 @@
+{% extends "django_demo/base.html" %}
+
+{% block title %}Dashboard | DTL & Views Demo{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+        <h1 class="h3 fw-bold text-dark mb-1">
+            <i class="bi bi-speedometer2 text-warning me-2"></i>Django Template Dashboard
+        </h1>
+        <p class="text-muted mb-0">Demonstrating Unit II (Views & URLs), Unit III (DTL & Inheritance), and Unit V (ORM Data)</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="{% url 'django_demo:submit_complaint' %}" class="btn btn-chocolate">
+            <i class="bi bi-plus-lg"></i> Raise Complaint (Form Demo)
+        </a>
+        <a href="{% url 'django_demo:orm_demo' %}" class="btn btn-caramel">
+            <i class="bi bi-code-square"></i> ORM Operations
+        </a>
+    </div>
+</div>
+
+<!-- Unit III & V: Live Database Metric Tiles -->
+<div class="row g-3 mb-4">
+    <div class="col-md-2 col-6">
+        <div class="stat-tile">
+            <p>Total Filed</p>
+            <h3>{{ total_complaints }}</h3>
+        </div>
+    </div>
+    <div class="col-md-2 col-6">
+        <div class="stat-tile" style="border-left-color: #E65100;">
+            <p>Pending</p>
+            <h3>{{ pending_count }}</h3>
+        </div>
+    </div>
+    <div class="col-md-2 col-6">
+        <div class="stat-tile" style="border-left-color: #0288D1;">
+            <p>Assigned</p>
+            <h3>{{ assigned_count }}</h3>
+        </div>
+    </div>
+    <div class="col-md-2 col-6">
+        <div class="stat-tile" style="border-left-color: #7B1FA2;">
+            <p>In Progress</p>
+            <h3>{{ in_progress_count }}</h3>
+        </div>
+    </div>
+    <div class="col-md-2 col-6">
+        <div class="stat-tile" style="border-left-color: #2E7D32;">
+            <p>Resolved</p>
+            <h3>{{ resolved_count }}</h3>
+        </div>
+    </div>
+    <div class="col-md-2 col-6">
+        <div class="stat-tile" style="border-left-color: #455A64;">
+            <p>Closed</p>
+            <h3>{{ closed_count }}</h3>
+        </div>
+    </div>
+</div>
+
+<!-- DTL Concepts Demonstration Panel -->
+<div class="card card-chocolate mb-4">
+    <div class="card-header card-chocolate-header d-flex justify-content-between align-items-center">
+        <span><i class="bi bi-journal-code me-2"></i>Unit III: Django Template Language (DTL) Verification</span>
+        <span class="syllabus-pill">CO2 & CO3 Compliant</span>
+    </div>
+    <div class="card-body">
+        <p class="mb-2">This view is rendered by <code>django_demo.views.dashboard_view</code> using DTL syntax directly from SQLite database queries:</p>
+        <div class="row">
+            <div class="col-md-4">
+                <div class="p-2 border rounded bg-light">
+                    <strong>1. DTL Variables:</strong>
+                    <br><code>{% verbatim %}{{ visits }}{% endverbatim %}</code> = <strong>{{ visits }}</strong>
+                    <br><code>{% verbatim %}{{ active_theme }}{% endverbatim %}</code> = <strong>{{ active_theme }}</strong>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="p-2 border rounded bg-light">
+                    <strong>2. DTL Filter Demonstration:</strong>
+                    <br><code>{% verbatim %}{{ title|upper }}{% endverbatim %}</code> = <span class="small">{{ title|upper }}</span>
+                    <br><code>{% verbatim %}{{ total_complaints|default:"0" }}{% endverbatim %}</code> = {{ total_complaints|default:"0" }}
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="p-2 border rounded bg-light">
+                    <strong>3. Template Tags & Conditionals:</strong>
+                    <br><code>{% verbatim %}{% if total_complaints > 0 %}{% endverbatim %}</code>
+                    <br><span class="badge bg-success">Condition: True (Database has records)</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Complaints Listing via DTL Loop -->
+<div class="card card-chocolate">
+    <div class="card-header card-chocolate-header d-flex justify-content-between align-items-center">
+        <span><i class="bi bi-clock-history me-2"></i>Recent Complaints (Rendered with DTL <code>{% verbatim %}{% for %}{% endverbatim %}</code> Loop)</span>
+        <a href="{% url 'django_demo:complaint_list' %}" class="btn btn-sm btn-chocolate">View All ({{ total_complaints }})</a>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Complaint ID</th>
+                        <th>Title</th>
+                        <th>Student / Room</th>
+                        <th>Category</th>
+                        <th>Priority</th>
+                        <th>Status</th>
+                        <th>Created Date</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if recent_complaints %}
+                        {% for complaint in recent_complaints %}
+                            <tr>
+                                <td class="fw-bold text-dark">{{ complaint.complaint_number }}</td>
+                                <td>
+                                    <a href="{% url 'django_demo:complaint_detail' complaint_id=complaint.id %}" class="text-decoration-none fw-semibold text-chocolate">
+                                        {{ complaint.title }}
+                                    </a>
+                                </td>
+                                <td>
+                                    <div>{{ complaint.student.full_name }}</div>
+                                    <small class="text-muted">{{ complaint.hostel_block_snapshot }} - Room {{ complaint.room_number_snapshot }}</small>
+                                </td>
+                                <td><span class="badge bg-light text-dark border">{{ complaint.get_category_display }}</span></td>
+                                <td>
+                                    <span class="badge badge-{{ complaint.priority|lower }}">
+                                        {{ complaint.get_priority_display }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge badge-{{ complaint.status|lower }}">
+                                        {{ complaint.get_status_display }}
+                                    </span>
+                                </td>
+                                <td>{{ complaint.created_at|date:"M d, Y H:i" }}</td>
+                                <td>
+                                    <a href="{% url 'django_demo:complaint_detail' complaint_id=complaint.id %}" class="btn btn-sm btn-outline-dark">
+                                        <i class="bi bi-eye"></i> View
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    {% else %}
+                        <!-- Unit III requirement: Empty-state template block -->
+                        <tr>
+                            <td colspan="8" class="text-center py-4 text-muted">
+                                <i class="bi bi-inbox fs-2 d-block mb-2 text-secondary"></i>
+                                No complaints found in the database.
+                                <br>
+                                <a href="{% url 'django_demo:submit_complaint' %}" class="btn btn-sm btn-chocolate mt-2">
+                                    Submit First Complaint
+                                </a>
+                            </td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

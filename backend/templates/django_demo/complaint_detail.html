@@ -1,0 +1,186 @@
+{% extends "django_demo/base.html" %}
+
+{% block title %}{{ complaint.complaint_number }} | Detail Demo{% endblock %}
+
+{% block content %}
+<div class="mb-3">
+    <a href="{% url 'django_demo:complaint_list' %}" class="text-decoration-none text-muted">
+        <i class="bi bi-arrow-left"></i> Back to Complaints List
+    </a>
+</div>
+
+<div class="row g-4">
+    <!-- Complaint Overview -->
+    <div class="col-lg-8">
+        <div class="card card-chocolate mb-4">
+            <div class="card-header card-chocolate-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <div>
+                    <span class="fs-5 fw-bold">{{ complaint.complaint_number }}</span>
+                    <span class="badge badge-{{ complaint.status|lower }} ms-2">{{ complaint.get_status_display }}</span>
+                    <span class="badge badge-{{ complaint.priority|lower }} ms-1">{{ complaint.get_priority_display }} Priority</span>
+                </div>
+                <span class="syllabus-pill">URL Param: ID {{ complaint.id }}</span>
+            </div>
+            <div class="card-body">
+                <h4 class="card-title fw-bold text-dark mb-3">{{ complaint.title }}</h4>
+
+                <div class="p-3 bg-light rounded mb-4">
+                    <h6 class="fw-bold text-muted text-uppercase small mb-2">Description</h6>
+                    <p class="mb-0 text-dark" style="white-space: pre-line;">{{ complaint.description }}</p>
+                </div>
+
+                <!-- Attached Photos -->
+                {% if complaint.images.all %}
+                    <h6 class="fw-bold text-muted text-uppercase small mb-2">Uploaded Images</h6>
+                    <div class="d-flex flex-wrap gap-3 mb-4">
+                        {% for img in complaint.images.all %}
+                            <div class="border rounded p-1 bg-white" style="width: 140px;">
+                                <a href="{{ img.image.url }}" target="_blank">
+                                    <img src="{{ img.image.url }}" class="img-fluid rounded" alt="Complaint photo" style="height: 100px; width: 100%; object-fit: cover;">
+                                </a>
+                                <small class="text-muted d-block text-truncate mt-1 text-center" style="font-size: 0.75rem;">
+                                    {{ img.uploaded_at|date:"M d, H:i" }}
+                                </small>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                <!-- Work Progress Logs -->
+                <h6 class="fw-bold text-muted text-uppercase small mb-2">
+                    <i class="bi bi-tools me-1"></i> Maintenance Work Progress Logs
+                </h6>
+                {% if complaint.work_logs.all %}
+                    <div class="list-group mb-4">
+                        {% for log in complaint.work_logs.all %}
+                            <div class="list-group-item">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <strong class="text-chocolate">{{ log.staff.full_name }}</strong>
+                                    <small class="text-muted">{{ log.timestamp|date:"M d, Y H:i" }}</small>
+                                </div>
+                                <p class="mb-0 mt-1 small">{{ log.progress_message }}</p>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-muted small fst-italic mb-4">No maintenance work progress logs recorded yet.</p>
+                {% endif %}
+
+                <!-- Status History Timeline -->
+                <h6 class="fw-bold text-muted text-uppercase small mb-2">
+                    <i class="bi bi-clock-history me-1"></i> Status Transition History
+                </h6>
+                <div class="table-responsive">
+                    <table class="table table-sm table-bordered small">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Transition</th>
+                                <th>Updated By</th>
+                                <th>Remarks</th>
+                                <th>Timestamp</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for sh in complaint.status_history.all %}
+                                <tr>
+                                    <td>
+                                        <span class="badge bg-secondary">{{ sh.previous_status }}</span> &rarr;
+                                        <span class="badge bg-dark">{{ sh.new_status }}</span>
+                                    </td>
+                                    <td>{{ sh.changed_by.full_name|default:"System" }}</td>
+                                    <td>{{ sh.remarks|default:"-" }}</td>
+                                    <td>{{ sh.timestamp|date:"M d, Y H:i" }}</td>
+                                </tr>
+                            {% empty %}
+                                <tr><td colspan="4" class="text-center text-muted">No status transitions recorded.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar Info Panel -->
+    <div class="col-lg-4">
+        <!-- Student & Location Snapshot -->
+        <div class="card card-chocolate mb-4">
+            <div class="card-header card-chocolate-header py-2">
+                <i class="bi bi-geo-alt-fill me-1"></i> Location & Student Snapshot
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled mb-0">
+                    <li class="mb-2">
+                        <small class="text-muted d-block">Student Name</small>
+                        <strong>{{ complaint.student.full_name }}</strong>
+                    </li>
+                    <li class="mb-2">
+                        <small class="text-muted d-block">Student Email</small>
+                        <span>{{ complaint.student.email }}</span>
+                    </li>
+                    <li class="mb-2">
+                        <small class="text-muted d-block">Hostel Block</small>
+                        <span class="badge bg-light text-dark border">{{ complaint.hostel_block_snapshot }}</span>
+                    </li>
+                    <li class="mb-2">
+                        <small class="text-muted d-block">Room Number</small>
+                        <span class="badge bg-light text-dark border">Room {{ complaint.room_number_snapshot }}</span>
+                    </li>
+                    <li class="mb-2">
+                        <small class="text-muted d-block">Category</small>
+                        <strong>{{ complaint.get_category_display }}</strong>
+                    </li>
+                    <li class="mb-0">
+                        <small class="text-muted d-block">Date Created</small>
+                        <span>{{ complaint.created_at|date:"F d, Y at H:i" }}</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Current Assignment -->
+        <div class="card card-chocolate mb-4">
+            <div class="card-header card-chocolate-header py-2">
+                <i class="bi bi-person-badge-fill me-1"></i> Current Assignment
+            </div>
+            <div class="card-body">
+                {% if complaint.current_assignment %}
+                    <p class="mb-1"><strong>Assigned Staff:</strong> {{ complaint.current_assignment.staff.full_name }}</p>
+                    <p class="mb-1 text-muted small"><i class="bi bi-envelope"></i> {{ complaint.current_assignment.staff.email }}</p>
+                    <p class="mb-1 text-muted small"><i class="bi bi-telephone"></i> {{ complaint.current_assignment.staff.phone_number|default:"N/A" }}</p>
+                    <p class="mb-0 text-muted small"><i class="bi bi-calendar"></i> Assigned: {{ complaint.current_assignment.assigned_at|date:"M d, Y" }}</p>
+                {% else %}
+                    <p class="text-muted mb-0 fst-italic">Awaiting administrative staff assignment.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Student Feedback -->
+        <div class="card card-chocolate">
+            <div class="card-header card-chocolate-header py-2">
+                <i class="bi bi-star-fill text-warning me-1"></i> Student Feedback
+            </div>
+            <div class="card-body">
+                {% if feedback %}
+                    <div class="text-warning mb-2 fs-5">
+                        {% for i in "12345" %}
+                            {% if forloop.counter <= feedback.rating %}
+                                ★
+                            {% else %}
+                                ☆
+                            {% endif %}
+                        {% endfor %}
+                        <span class="text-dark fs-6 ms-2">({{ feedback.rating }}/5)</span>
+                    </div>
+                    {% if feedback.comment %}
+                        <p class="small text-muted mb-0">"{{ feedback.comment }}"</p>
+                    {% endif %}
+                    <small class="text-muted d-block mt-2">{{ feedback.timestamp|date:"M d, Y" }}</small>
+                {% else %}
+                    <p class="text-muted small mb-0">No feedback submitted yet.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

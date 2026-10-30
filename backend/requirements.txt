@@ -1,0 +1,6 @@
+Django>=5.0,<6.0
+djangorestframework>=3.15.0
+django-cors-headers>=4.3.0
+Pillow>=10.0.0
+# Optional for MySQL in production/demonstration:
+# mysqlclient>=2.2.0

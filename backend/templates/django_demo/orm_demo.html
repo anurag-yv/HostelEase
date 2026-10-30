@@ -1,0 +1,130 @@
+{% extends "django_demo/base.html" %}
+
+{% block title %}Django ORM Demonstration | Unit V{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+        <h1 class="h3 fw-bold text-dark mb-1">
+            <i class="bi bi-database text-warning me-2"></i>Django ORM & Models Demonstration
+        </h1>
+        <p class="text-muted mb-0">Demonstrating Unit V: Django ORM Queries, Filtering, Aggregations, and Foreign Key Traversals</p>
+    </div>
+    <span class="syllabus-pill">CO5 & Unit V Compliant</span>
+</div>
+
+<div class="row g-4">
+    <!-- ORM Query 1: all() and count() -->
+    <div class="col-md-6">
+        <div class="card card-chocolate h-100">
+            <div class="card-header card-chocolate-header">
+                1. Read & Count: <code>Complaint.objects.count()</code>
+            </div>
+            <div class="card-body">
+                <p class="mb-2">Python ORM Expression:</p>
+                <pre class="bg-dark text-warning p-2 rounded small"><code>total = Complaint.objects.count()</code></pre>
+                <div class="alert alert-info py-2">
+                    Result: <strong>{{ total_count }}</strong> records in database.
+                </div>
+                <p class="small text-muted mb-0">Translates under the hood to SQL: <code>SELECT COUNT(*) FROM complaints_complaint;</code></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ORM Query 2: filter(status="PENDING") -->
+    <div class="col-md-6">
+        <div class="card card-chocolate h-100">
+            <div class="card-header card-chocolate-header">
+                2. Filter Query: <code>filter(status='PENDING')</code>
+            </div>
+            <div class="card-body">
+                <p class="mb-2">Python ORM Expression:</p>
+                <pre class="bg-dark text-warning p-2 rounded small"><code>pending = Complaint.objects.filter(status='PENDING')</code></pre>
+                <div class="alert alert-warning py-2">
+                    Found <strong>{{ pending_complaints.count }}</strong> pending complaints.
+                </div>
+                <ul class="small mb-0 list-unstyled">
+                    {% for p in pending_complaints|slice:":3" %}
+                        <li>&bull; {{ p.complaint_number }} - {{ p.title }}</li>
+                    {% empty %}
+                        <li class="text-muted">No pending complaints.</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- ORM Query 3: Search filter title__icontains="water" -->
+    <div class="col-md-6">
+        <div class="card card-chocolate h-100">
+            <div class="card-header card-chocolate-header">
+                3. Text Search: <code>filter(title__icontains='water')</code>
+            </div>
+            <div class="card-body">
+                <p class="mb-2">Python ORM Expression:</p>
+                <pre class="bg-dark text-warning p-2 rounded small"><code>water_items = Complaint.objects.filter(title__icontains='water')</code></pre>
+                <div class="alert alert-secondary py-2">
+                    Found <strong>{{ water_complaints.count }}</strong> complaints matching 'water'.
+                </div>
+                <ul class="small mb-0 list-unstyled">
+                    {% for w in water_complaints|slice:":3" %}
+                        <li>&bull; {{ w.complaint_number }}: {{ w.title }} ({{ w.student.full_name }})</li>
+                    {% empty %}
+                        <li class="text-muted">No items matched 'water'.</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- ORM Query 4: Aggregation Avg(rating) -->
+    <div class="col-md-6">
+        <div class="card card-chocolate h-100">
+            <div class="card-header card-chocolate-header">
+                4. Aggregation: <code>aggregate(Avg('rating'))</code>
+            </div>
+            <div class="card-body">
+                <p class="mb-2">Python ORM Expression:</p>
+                <pre class="bg-dark text-warning p-2 rounded small"><code>from django.db.models import Avg
+Feedback.objects.aggregate(avg=Avg('rating'))</code></pre>
+                <div class="alert alert-success py-2">
+                    Average Student Rating: <strong>{{ avg_rating }} / 5.0</strong>
+                </div>
+                <p class="small text-muted mb-0">Demonstrates Django ORM math & SQL <code>AVG()</code> aggregation.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Viva ORM Cheatsheet -->
+    <div class="col-12">
+        <div class="card card-chocolate">
+            <div class="card-header card-chocolate-header">
+                <i class="bi bi-lightbulb-fill text-warning me-2"></i>Django Shell & Viva Quick Reference (Unit V)
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <h6 class="fw-bold">Safe Update Demonstration:</h6>
+                        <pre class="bg-dark text-white p-2 rounded small"><code># Select record by primary key
+c = Complaint.objects.get(pk=1)
+# Update field
+c.priority = "HIGH"
+# Persist to database
+c.save(update_fields=['priority'])</code></pre>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="fw-bold">Foreign Key Reverse Traversals:</h6>
+                        <pre class="bg-dark text-white p-2 rounded small"><code># Related complaints of a student
+user = User.objects.get(email="student.aarav@hostel.edu")
+student_complaints = user.complaints.all()
+
+# Reverse feedback traversal
+comp = Complaint.objects.first()
+rating = comp.feedback.rating if hasattr(comp, 'feedback') else None</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

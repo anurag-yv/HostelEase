@@ -1,0 +1,1 @@
+# HostelEase Config Package
