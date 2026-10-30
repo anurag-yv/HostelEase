@@ -7,8 +7,8 @@ HostelEase is an integrated full-stack web application designed to digitize, str
 ## 1. Core Features & Capabilities
 
 - **Role-Based Portals:** Dedicated dashboards and access control for **Students**, **Maintenance Staff**, and **Administrators**.
-- **Automated Ticket Lifecycle:** Unique sequential complaint IDs (`HST-2026-000001`) with real-time status transitions:
-  $$\text{PENDING} \longrightarrow \text{ASSIGNED} \longrightarrow \text{IN\_PROGRESS} \longrightarrow \text{RESOLVED} \longrightarrow \text{CLOSED}$$
+- **Automated Ticket Lifecycle:** Unique sequential complaint IDs (`HST-2026-000001`) with real-time status transitions:  
+  `PENDING` → `ASSIGNED` → `IN_PROGRESS` → `RESOLVED` → `CLOSED`
 - **Student Privacy & Visit Protocols:**
   - Gender preference matching for maintenance workers.
   - Optional warden / staff accompaniment for room visits.
